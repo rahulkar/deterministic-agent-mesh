@@ -1,0 +1,124 @@
+{
+  "version": "2026-05-22.v1",
+  "supportedDrugs": [
+    {
+      "canonical": "aspirin",
+      "aliases": ["aspirin", "asprin", "acetylsalicylic acid", "asa", "baby aspirin"]
+    },
+    {
+      "canonical": "ibuprofen",
+      "aliases": ["ibuprofen", "advil", "motrin"]
+    },
+    {
+      "canonical": "warfarin",
+      "aliases": ["warfarin", "coumadin"]
+    },
+    {
+      "canonical": "acetaminophen",
+      "aliases": ["acetaminophen", "paracetamol", "tylenol"]
+    },
+    {
+      "canonical": "naproxen",
+      "aliases": ["naproxen", "aleve"]
+    },
+    {
+      "canonical": "dextromethorphan",
+      "aliases": ["dextromethorphan", "dxm", "cough suppressant"]
+    },
+    {
+      "canonical": "guaifenesin",
+      "aliases": ["guaifenesin", "expectorant", "mucus relief"]
+    }
+  ],
+  "clinicalTerms": [
+    "medicine",
+    "medication",
+    "drug",
+    "otc",
+    "over the counter",
+    "tablet",
+    "label",
+    "use",
+    "usage",
+    "safe",
+    "okay",
+    "pain",
+    "fever",
+    "cough",
+    "cold",
+    "mucus",
+    "congestion",
+    "sprain",
+    "strain",
+    "headache",
+    "ache",
+    "food",
+    "pregnant",
+    "pregnancy"
+  ],
+  "interactionTerms": [
+    "interaction",
+    "interact",
+    "combine",
+    "combined",
+    "together",
+    "with",
+    "blood thinner",
+    "anticoagulant",
+    "contraindication"
+  ],
+  "dosageTerms": [
+    "dose",
+    "dosage",
+    "mg",
+    "milligram",
+    "tablet",
+    "half",
+    "rest",
+    "repeat dose",
+    "how many",
+    "child",
+    "kid",
+    "pediatric",
+    "age",
+    "weight"
+  ],
+  "safetyTerms": [
+    "bleeding",
+    "severe bleeding",
+    "chest pain",
+    "trouble breathing",
+    "difficulty breathing",
+    "allergic reaction",
+    "shortness of breath",
+    "high fever",
+    "severe headache",
+    "head injury",
+    "stiff neck",
+    "confusion",
+    "severe pain",
+    "can't bear weight",
+    "unable to bear weight",
+    "overdose",
+    "unwell"
+  ],
+  "policyTerms": [
+    "diagnose",
+    "diagnosis",
+    "prescribe",
+    "prescription",
+    "antibiotic",
+    "need antibiotics"
+  ],
+  "spellingVariants": {
+    "asprin": "aspirin",
+    "paracetemol": "paracetamol",
+    "ibuprofin": "ibuprofen",
+    "medince": "medicine",
+    "medicne": "medicine",
+    "medcine": "medicine",
+    "caugh": "cough",
+    "feaver": "fever",
+    "headach": "headache"
+  }
+}

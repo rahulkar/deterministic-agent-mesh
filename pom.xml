@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.agentmesh</groupId>
+    <artifactId>deterministic-agent-mesh</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <google.adk.version>1.0.0</google.adk.version>
+        <stanford.corenlp.version>4.5.10</stanford.corenlp.version>
+        <a2a.java.sdk.version>1.0.0.CR1</a2a.java.sdk.version>
+        <exec.mainClass>com.agentmesh.deterministic.DeterministicAgentMeshDemo</exec.mainClass>
+    </properties>
+
+    <dependencies>
+        <!-- Google ADK Dependencies -->
+        <dependency>
+            <groupId>com.google.adk</groupId>
+            <artifactId>google-adk</artifactId>
+            <version>${google.adk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.adk</groupId>
+            <artifactId>google-adk-a2a</artifactId>
+            <version>${google.adk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.adk</groupId>
+            <artifactId>google-adk-dev</artifactId>
+            <version>${google.adk.version}</version>
+        </dependency>
+
+        <!-- WireMock for LiteLLM Mocking -->
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock-jre8-standalone</artifactId>
+            <version>2.35.0</version>
+        </dependency>
+
+        <!-- JSON and Logging -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.15.2</version>
+        </dependency>
+        <!-- Tests for deterministic routing and safety gates -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <mainClass>${exec.mainClass}</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <forkCount>0</forkCount>
+                    <useManifestOnlyJar>false</useManifestOnlyJar>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>stanford-classifier</id>
+            <dependencies>
+                <dependency>
+                    <groupId>edu.stanford.nlp</groupId>
+                    <artifactId>stanford-corenlp</artifactId>
+                    <version>${stanford.corenlp.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>a2a-1x-sdk-reference</id>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.a2aproject.sdk</groupId>
+                        <artifactId>a2a-java-sdk-reference-bom</artifactId>
+                        <version>${a2a.java.sdk.version}</version>
+                        <type>pom</type>
+                        <scope>import</scope>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+            <dependencies>
+                <dependency>
+                    <groupId>org.a2aproject.sdk</groupId>
+                    <artifactId>a2a-java-sdk-client</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>org.a2aproject.sdk</groupId>
+                    <artifactId>a2a-java-sdk-reference-jsonrpc</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+</project>
