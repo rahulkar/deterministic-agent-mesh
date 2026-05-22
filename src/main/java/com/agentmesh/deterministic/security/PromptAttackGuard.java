@@ -55,8 +55,7 @@ public class PromptAttackGuard {
             .replaceAll("\\p{Cntrl}", " ")
             .replaceAll("\\s+", " ")
             .trim()
-            .toLowerCase(Locale.ROOT)
-            .replaceAll("\\basprin\\b", "aspirin");
+            .toLowerCase(Locale.ROOT);
     }
 
     private java.util.Optional<String> decodeBase64(String token) {

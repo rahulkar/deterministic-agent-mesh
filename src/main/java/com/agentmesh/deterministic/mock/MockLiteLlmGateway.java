@@ -108,6 +108,8 @@ public class MockLiteLlmGateway {
             "{\"matchFound\": true, \"approvedText\": \"Acetaminophen information is available only as approved label guidance in this demo.\", \"disclaimer\": \"Consult physician before use.\"}");
         agentStub("clinical_retriever", "aspirin", 2,
             "{\"matchFound\": true, \"approvedText\": \"Take 1 tablet (325 mg) every 4 to 6 hours as needed.\", \"disclaimer\": \"Rx Only. Consult physician.\"}");
+        agentStub("clinical_retriever", "asprin", 2,
+            "{\"matchFound\": true, \"approvedText\": \"Take 1 tablet (325 mg) every 4 to 6 hours as needed.\", \"disclaimer\": \"Rx Only. Consult physician.\"}");
         agentStub("clinical_retriever", "cough", 3,
             "{\"matchFound\": true, \"approvedText\": \"For cough, approved OTC examples include dextromethorphan for cough suppression and guaifenesin for mucus. Read the Drug Facts label and ask a pharmacist or clinician if symptoms are severe, persistent, in a child, or you take other medicines.\", \"disclaimer\": \"General OTC information only; no diagnosis or personalized dosing.\"}");
         agentStub("clinical_retriever", "fever", 3,

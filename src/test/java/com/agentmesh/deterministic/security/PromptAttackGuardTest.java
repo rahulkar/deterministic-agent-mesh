@@ -24,12 +24,4 @@ class PromptAttackGuardTest {
         assertFalse(decision.blocked());
         assertTrue(decision.canonicalPrompt().contains("aspirin"));
     }
-
-    @Test
-    void normalizesCommonAspirinTypo() {
-        GuardDecision decision = guard.inspect("what is the usage of asprin?");
-
-        assertFalse(decision.blocked());
-        assertTrue(decision.canonicalPrompt().contains("aspirin"));
-    }
 }
