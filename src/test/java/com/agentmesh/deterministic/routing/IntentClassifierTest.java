@@ -45,6 +45,23 @@ class IntentClassifierTest {
     }
 
     @Test
+    void detectsBroaderFreeTextMedicationLanguage() {
+        IntentClassification interaction = classifier.classify("Can I mix ibuprofen and aspirin at the same time?");
+        IntentClassification symptoms = classifier.classify("What OTC relief helps body aches and congestion?");
+        IntentClassification pediatricDose = classifier.classify("How much Tylenol for my kid by weight?");
+        IntentClassification policy = classifier.classify("Do I need antibiotics for this cough?");
+
+        assertTrue(interaction.supportedMedicalQuery());
+        assertTrue(interaction.interactionIntent());
+        assertTrue(symptoms.supportedMedicalQuery());
+        assertTrue(symptoms.clinicalIntent());
+        assertTrue(pediatricDose.supportedMedicalQuery());
+        assertTrue(pediatricDose.dosageIntent());
+        assertTrue(policy.supportedMedicalQuery());
+        assertTrue(policy.complianceIntent());
+    }
+
+    @Test
     void keepsNonMedicalAndNegatedPromptsUnsupported() {
         assertFalse(classifier.classify("What is the weather today?").supportedMedicalQuery());
         assertFalse(classifier.classify("I am not asking about medicine; tell me a joke").supportedMedicalQuery());

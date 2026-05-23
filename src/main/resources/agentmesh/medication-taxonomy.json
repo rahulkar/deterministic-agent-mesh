@@ -1,5 +1,5 @@
 {
-  "version": "2026-05-22.v1",
+  "version": "2026-05-22.v2",
   "supportedDrugs": [
     {
       "canonical": "aspirin",
@@ -42,7 +42,10 @@
     "usage",
     "safe",
     "okay",
+    "relief",
     "pain",
+    "pain reliever",
+    "painkiller",
     "fever",
     "cough",
     "cold",
@@ -52,6 +55,8 @@
     "strain",
     "headache",
     "ache",
+    "aches",
+    "body aches",
     "food",
     "pregnant",
     "pregnancy"
@@ -61,8 +66,15 @@
     "interact",
     "combine",
     "combined",
+    "mix",
+    "mixed",
+    "mixing",
     "together",
     "with",
+    "take with",
+    "taken with",
+    "same time",
+    "alongside",
     "blood thinner",
     "anticoagulant",
     "contraindication"
@@ -77,15 +89,21 @@
     "rest",
     "repeat dose",
     "how many",
+    "how much",
+    "how often",
+    "another",
+    "more",
     "child",
     "kid",
     "pediatric",
     "age",
-    "weight"
+    "weight",
+    "by weight"
   ],
   "safetyTerms": [
     "bleeding",
     "severe bleeding",
+    "bleeding badly",
     "chest pain",
     "trouble breathing",
     "difficulty breathing",
@@ -107,13 +125,16 @@
     "diagnosis",
     "prescribe",
     "prescription",
+    "write prescription",
     "antibiotic",
-    "need antibiotics"
+    "need antibiotics",
+    "do i need antibiotics"
   ],
   "spellingVariants": {
     "asprin": "aspirin",
     "paracetemol": "paracetamol",
     "ibuprofin": "ibuprofen",
+    "naproxin": "naproxen",
     "medince": "medicine",
     "medicne": "medicine",
     "medcine": "medicine",

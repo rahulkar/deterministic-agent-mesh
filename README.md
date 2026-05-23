@@ -131,6 +131,25 @@ The project includes a native ADK Dev UI adapter:
 
 The adapter is intentionally implemented as a custom ADK `BaseAgent`, not a generic LLM agent. Every Dev UI prompt goes directly through `AgentMeshOrchestrator.executeTriage(...)`, so ADK provides the browser surface while the deterministic control plane remains authoritative.
 
+Start the full local stack, including ADK Dev UI plus fixed-port remote A2A agents:
+
+```powershell
+.\run.bat
+```
+
+```bash
+./run.sh
+```
+
+The scripts print the ADK Dev UI URL and every remote Agent Card URL. By default the cards are available while the stack is running at:
+
+- `http://localhost:9001/.well-known/agent-card.json`
+- `http://localhost:9002/.well-known/agent-card.json`
+- `http://localhost:9003/.well-known/agent-card.json`
+- `http://localhost:9004/.well-known/agent-card.json`
+- `http://localhost:9005/.well-known/agent-card.json`
+- `http://localhost:9006/.well-known/agent-card.json`
+
 Start ADK Dev UI:
 
 ```powershell
