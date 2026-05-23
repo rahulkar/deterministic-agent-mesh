@@ -46,21 +46,23 @@ class A2aProtocolConformanceTest {
     }
 
     @Test
-    void agentCardAdvertisesA2aOneInterfacesAndLegacyCompatibilityFields() throws Exception {
+    void agentCardAdvertisesOnlyLatestA2aInterfaces() throws Exception {
         JsonNode card = clinicalCard();
 
         assertEquals("clinical_retriever", card.path("name").asText());
         assertTrue(card.path("supportedInterfaces").isArray());
-        assertTrue(hasInterface(card, "JSONRPC", "1.0"));
-        assertTrue(hasInterface(card, "HTTP+JSON", "1.0"));
-        assertEquals("1.0", card.path("protocolVersion").asText());
-        assertEquals("JSONRPC", card.path("preferredTransport").asText());
+        assertTrue(hasInterface(card, "JSONRPC", AgentMeshA2aCards.PROTOCOL_VERSION));
+        assertTrue(hasInterface(card, "HTTP+JSON", AgentMeshA2aCards.PROTOCOL_VERSION));
+        assertFalse(card.has("protocolVersion"));
+        assertFalse(card.has("url"));
+        assertFalse(card.has("preferredTransport"));
+        assertFalse(card.has("additionalInterfaces"));
         assertFalse(card.path("capabilities").path("streaming").asBoolean());
-        assertTrue(card.path("signatures").isArray());
+        assertFalse(card.has("signatures"));
     }
 
     @Test
-    void jsonRpcSendMessageUsesA2aVersionHeaderAndOnePointZeroDataParts() throws Exception {
+    void jsonRpcSendMessageUsesA2aVersionHeaderAndLatestDataParts() throws Exception {
         JsonNode card = clinicalCard();
         String endpoint = interfaceUrl(card, "JSONRPC");
         String requestBody = MAPPER.writeValueAsString(Map.of(
@@ -71,8 +73,11 @@ class A2aProtocolConformanceTest {
                 "message", Map.of(
                     "role", "ROLE_USER",
                     "messageId", "msg-1",
-                    "parts", List.of(Map.of("text", "Can I take aspirin for pain?"))
-                )
+                    "contextId", "ctx-1",
+                    "parts", List.of(Map.of("kind", "text", "text", "Can I take aspirin for pain?"))
+                ),
+                "configuration", Map.of("acceptedOutputModes", List.of("application/json")),
+                "tenant", ""
             )
         ));
 
@@ -86,20 +91,20 @@ class A2aProtocolConformanceTest {
         );
         JsonNode body = MAPPER.readTree(response.body());
 
-        assertEquals(200, response.statusCode());
+        assertEquals(200, response.statusCode(), response.body());
         assertEquals("conformance-1", body.path("id").asText());
-        assertTrue(body.path("result").path("message").path("parts").path(0).has("data"));
-        assertFalse(body.path("result").path("message").path("parts").path(0).has("kind"));
-        assertTrue(body.path("result").path("message").path("parts").path(0).path("data").path("matchFound").asBoolean());
+        JsonNode part = body.path("result").path("task").path("artifacts").path(0).path("parts").path(0);
+        assertTrue(part.has("data"), response.body());
+        assertTrue(part.path("data").path("matchFound").asBoolean());
     }
 
     @Test
-    void unsupportedJsonRpcMethodReturnsA2aErrorEnvelope() throws Exception {
+    void legacyJsonRpcMethodAliasReturnsA2aErrorEnvelope() throws Exception {
         JsonNode card = clinicalCard();
         String requestBody = MAPPER.writeValueAsString(Map.of(
             "jsonrpc", "2.0",
             "id", "bad-method",
-            "method", "TaskPushNotificationConfig",
+            "method", "message/send",
             "params", Map.of()
         ));
 
@@ -113,9 +118,9 @@ class A2aProtocolConformanceTest {
         );
         JsonNode body = MAPPER.readTree(response.body());
 
-        assertEquals(200, response.statusCode());
-        assertEquals(-32601, body.path("error").path("code").asInt());
-        assertTrue(body.path("error").path("message").asText().contains("UnsupportedOperationError"));
+        assertEquals(200, response.statusCode(), response.body());
+        assertEquals(-32004, body.path("error").path("code").asInt());
+        assertTrue(body.path("error").path("message").asText().toLowerCase().contains("not supported"), response.body());
     }
 
     @Test
@@ -125,7 +130,7 @@ class A2aProtocolConformanceTest {
         HttpResponse<String> response = httpClient.send(
             HttpRequest.newBuilder(URI.create(interfaceUrl(card, "JSONRPC")))
                 .header("Content-Type", "application/json")
-                .header("A2A-Version", "0.5")
+                .header("A2A-Version", "0.3")
                 .POST(HttpRequest.BodyPublishers.ofString("{}"))
                 .build(),
             HttpResponse.BodyHandlers.ofString()
@@ -134,7 +139,7 @@ class A2aProtocolConformanceTest {
 
         assertEquals(400, response.statusCode());
         assertEquals("Protocol Version Not Supported", body.path("title").asText());
-        assertTrue(body.path("supportedVersions").toString().contains("1.0"));
+        assertTrue(body.path("supportedVersions").toString().contains(AgentMeshA2aCards.PROTOCOL_VERSION));
     }
 
     @Test

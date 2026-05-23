@@ -12,7 +12,7 @@ The medication-safety domain is a demo wrapper around the core pattern. The same
 - Bounded agent execution: remote agents answer only when selected by the router; they do not select peers or decide final policy.
 - Fail-closed contracts: unsupported prompts, prompt attacks, missing approved content, invalid payloads, and policy risks return guarded statuses instead of improvised answers.
 - Observable decisions: responses carry selected agents, route confidence, guard decision, correlation id, and downstream-skip state.
-- Mocked repeatability: WireMock makes model-adjacent behavior stable enough for architecture tests and demos.
+- Mocked repeatability: a WireMock-backed LiteLLM-compatible gateway makes model-adjacent behavior stable enough for architecture tests and demos.
 
 ## Runtime Flow
 
@@ -74,12 +74,12 @@ The taxonomy includes:
 `RemoteAgentHosts` starts one local HTTP host per agent. Each agent publishes:
 
 - `GET /.well-known/agent-card.json`
-- `POST /a2a/remote/v1/jsonrpc`
-- `POST /a2a/remote/v1/message:send`
+- `POST /`
+- `POST /message:send`
 
-Agent Cards advertise A2A 1.0-style `supportedInterfaces` for JSON-RPC and HTTP+JSON. They also retain legacy fields (`url`, `preferredTransport`, `protocolVersion`, and `additionalInterfaces`) for compatibility with the Java ADK dependency path.
+Agent Cards advertise latest SDK `supportedInterfaces` for JSON-RPC and HTTP+JSON. The public card intentionally omits legacy fields (`url`, `preferredTransport`, `protocolVersion`, and `additionalInterfaces`) and rejects A2A `0.3`.
 
-`A2aRemoteAgentClient` resolves Agent Cards, validates the advertised identity, chooses a supported interface, sends `A2A-Version`, uses JSON-RPC `SendMessage`, and extracts typed payloads from A2A data parts or legacy payload fields.
+`A2aRemoteAgentClient` resolves Agent Cards, validates the advertised identity, requires `supportedInterfaces`, sends `A2A-Version`, uses the official SDK `Client` with JSON-RPC `SendMessage`, and extracts typed payloads from SDK `DataPart` responses.
 
 ## Agent Responsibilities
 
@@ -159,7 +159,7 @@ Google ADK Dev UI is used as a browser shell, not as the planner. The adapter li
 - Agent name `deterministic-agent-mesh`
 - A custom `BaseAgent` implementation that calls `AgentMeshOrchestrator.executeTriage(...)`
 
-The adapter lazily starts WireMock and local A2A-capable agents on random available ports. A local `RequestBodyAdvice` fills blank Dev UI `sessionId` values and creates the in-memory session before ADK validates `/run` or `/run_sse`.
+When started directly, the adapter lazily starts WireMock and local A2A SDK-backed agents on random available ports. When started through `run.sh` or `run.bat`, `StackLauncher` starts the mock gateway on `8080`, all six fixed-port A2A agents on `9001` through `9006`, and ADK Dev UI on `SERVER_PORT` or `8000`. A local `RequestBodyAdvice` fills blank Dev UI `sessionId` values and creates the in-memory session before ADK validates `/run` or `/run_sse`.
 
 ## Hardening Hooks
 
@@ -183,9 +183,9 @@ Unit tests cover:
 
 Integration tests cover:
 
-- WireMock plus local A2A-capable remote agents.
-- Agent Card discovery and A2A 1.0-style `supportedInterfaces`.
-- `A2A-Version`, `SendMessage`, data-part responses, unsupported-method errors, unsupported-version errors, and bearer-auth enforcement.
+- WireMock plus local A2A SDK-backed remote agents.
+- Agent Card discovery and latest SDK `supportedInterfaces` without legacy card fields.
+- `A2A-Version`, `SendMessage`, data-part responses, legacy-alias rejection, unsupported-version errors, and bearer-auth enforcement.
 - Injection short-circuiting with zero WireMock calls.
 - Greeting and approved OTC success paths.
 - Safety, interaction, dosage, unsupported-answer, and malformed-payload fail-closed behavior.

@@ -12,11 +12,23 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <google.adk.version>1.0.0</google.adk.version>
+        <google.adk.version>1.3.0</google.adk.version>
         <stanford.corenlp.version>4.5.10</stanford.corenlp.version>
         <a2a.java.sdk.version>1.0.0.CR1</a2a.java.sdk.version>
         <exec.mainClass>com.agentmesh.deterministic.DeterministicAgentMeshDemo</exec.mainClass>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.a2aproject.sdk</groupId>
+                <artifactId>a2a-java-sdk-reference-bom</artifactId>
+                <version>${a2a.java.sdk.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- Google ADK Dependencies -->
@@ -27,13 +39,56 @@
         </dependency>
         <dependency>
             <groupId>com.google.adk</groupId>
-            <artifactId>google-adk-a2a</artifactId>
+            <artifactId>google-adk-dev</artifactId>
             <version>${google.adk.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.google.adk</groupId>
-            <artifactId>google-adk-dev</artifactId>
-            <version>${google.adk.version}</version>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <version>1.0.0</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Latest A2A SDK Dependencies -->
+        <dependency>
+            <groupId>org.a2aproject.sdk</groupId>
+            <artifactId>a2a-java-sdk-spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.a2aproject.sdk</groupId>
+            <artifactId>a2a-java-sdk-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.a2aproject.sdk</groupId>
+            <artifactId>a2a-java-sdk-client-transport-jsonrpc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.a2aproject.sdk</groupId>
+            <artifactId>a2a-java-sdk-client-transport-rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.a2aproject.sdk</groupId>
+            <artifactId>a2a-java-sdk-server-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.a2aproject.sdk</groupId>
+            <artifactId>a2a-java-sdk-transport-jsonrpc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.a2aproject.sdk</groupId>
+            <artifactId>a2a-java-sdk-transport-rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.a2aproject.sdk</groupId>
+            <artifactId>a2a-java-sdk-reference-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.a2aproject.sdk</groupId>
+            <artifactId>a2a-java-sdk-reference-jsonrpc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.a2aproject.sdk</groupId>
+            <artifactId>a2a-java-sdk-reference-rest</artifactId>
         </dependency>
 
         <!-- WireMock for LiteLLM Mocking -->
@@ -93,30 +148,6 @@
                     <groupId>edu.stanford.nlp</groupId>
                     <artifactId>stanford-corenlp</artifactId>
                     <version>${stanford.corenlp.version}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>a2a-1x-sdk-reference</id>
-            <dependencyManagement>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.a2aproject.sdk</groupId>
-                        <artifactId>a2a-java-sdk-reference-bom</artifactId>
-                        <version>${a2a.java.sdk.version}</version>
-                        <type>pom</type>
-                        <scope>import</scope>
-                    </dependency>
-                </dependencies>
-            </dependencyManagement>
-            <dependencies>
-                <dependency>
-                    <groupId>org.a2aproject.sdk</groupId>
-                    <artifactId>a2a-java-sdk-client</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.a2aproject.sdk</groupId>
-                    <artifactId>a2a-java-sdk-reference-jsonrpc</artifactId>
                 </dependency>
             </dependencies>
         </profile>

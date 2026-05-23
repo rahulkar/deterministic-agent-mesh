@@ -18,6 +18,7 @@ import java.util.List;
 final class AgentMeshDevUiAgent extends BaseAgent {
     private static final String START_RUNTIME_ON_LOAD_PROPERTY = "agentmesh.adk.start-runtime-on-load";
     private static final String FIXED_AGENT_PORTS_PROPERTY = "agentmesh.adk.fixed-agent-ports";
+    private static final String EXTERNAL_RUNTIME_PROPERTY = "agentmesh.adk.external-runtime";
     private static final MeshRuntime RUNTIME = new MeshRuntime();
 
     AgentMeshDevUiAgent() {
@@ -89,17 +90,19 @@ final class AgentMeshDevUiAgent extends BaseAgent {
 
         synchronized AgentMeshOrchestrator orchestrator() {
             if (orchestrator == null) {
-                gateway = new MockLiteLlmGateway(0);
-                gateway.start();
-                if (Boolean.getBoolean(FIXED_AGENT_PORTS_PROPERTY)) {
-                    hosts = RemoteAgentHosts.startAll(gateway.baseUrl() + "/v1");
-                } else {
-                    hosts = RemoteAgentHosts.startAllOnRandomPorts(gateway.baseUrl() + "/v1");
+                if (!Boolean.getBoolean(EXTERNAL_RUNTIME_PROPERTY)) {
+                    gateway = new MockLiteLlmGateway(0);
+                    gateway.start();
+                    if (Boolean.getBoolean(FIXED_AGENT_PORTS_PROPERTY)) {
+                        hosts = RemoteAgentHosts.startAll(gateway.baseUrl() + "/v1");
+                    } else {
+                        hosts = RemoteAgentHosts.startAllOnRandomPorts(gateway.baseUrl() + "/v1");
+                    }
                 }
                 orchestrator = new AgentMeshOrchestrator(
                     new PromptAttackGuard(),
                     new DeterministicAgentRouter(),
-                    new A2aRemoteAgentClient(hosts.baseUrls())
+                    hosts == null ? new A2aRemoteAgentClient() : new A2aRemoteAgentClient(hosts.baseUrls())
                 );
                 Runtime.getRuntime().addShutdownHook(new Thread(this::stop, "agent-mesh-adk-shutdown"));
             }
