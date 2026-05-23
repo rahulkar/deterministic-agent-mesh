@@ -140,6 +140,10 @@
     "medcine": "medicine",
     "caugh": "cough",
     "feaver": "fever",
-    "headach": "headache"
+    "headach": "headache",
+    "pregrant": "pregnant",
+    "pregant": "pregnant",
+    "pregnent": "pregnant",
+    "pregnnt": "pregnant"
   }
 }

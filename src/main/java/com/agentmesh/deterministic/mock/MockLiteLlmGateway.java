@@ -6,10 +6,14 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 public class MockLiteLlmGateway {
     private static final String PREGNANCY_CONTENT =
         "{\"matchFound\": true, \"approvedText\": \"For pregnancy-related medicine questions, use only clinician-approved guidance and consult a healthcare professional.\", \"disclaimer\": \"Pregnancy safety requires clinician review.\"}";
+    private static final String PREGNANCY_FEVER_CONTENT =
+        "{\"matchFound\": true, \"approvedText\": \"For fever during pregnancy, this demo only provides approved guidance to contact a clinician or pharmacist before choosing an OTC medicine. Seek urgent care for high, persistent, or concerning fever symptoms.\", \"disclaimer\": \"Pregnancy and fever require clinician-specific guidance.\"}";
     private static final String IBUPROFEN_CONTENT =
         "{\"matchFound\": true, \"approvedText\": \"Ibuprofen information is available only as approved Drug Facts label guidance in this demo. Do not use it as a substitute for clinician advice, especially with pregnancy, kidney disease, ulcers, blood thinners, or other medical conditions.\", \"disclaimer\": \"General OTC information only; follow the product label and clinician guidance.\"}";
     private static final String ACETAMINOPHEN_CONTENT =
         "{\"matchFound\": true, \"approvedText\": \"Acetaminophen information is available only as approved Drug Facts label guidance in this demo. Avoid taking more than one acetaminophen-containing product at the same time unless a clinician says to do so.\", \"disclaimer\": \"General OTC information only; follow the product label and clinician guidance.\"}";
+    private static final String ACETAMINOPHEN_LIVER_ALCOHOL_CONTENT =
+        "{\"matchFound\": true, \"approvedText\": \"Acetaminophen questions involving liver disease or alcohol use require clinician or pharmacist guidance because overdose or combined products can create serious risk.\", \"disclaimer\": \"General OTC information only; do not use this as personalized dosing advice.\"}";
     private static final String ASPIRIN_CONTENT =
         "{\"matchFound\": true, \"approvedText\": \"Aspirin information is available only as approved label guidance in this demo. Some aspirin products list 325 mg tablets; follow the Drug Facts label and avoid use when contraindications or bleeding risks apply.\", \"disclaimer\": \"General OTC information only; consult a clinician for personal use questions.\"}";
     private static final String NAPROXEN_CONTENT =
@@ -123,6 +127,9 @@ public class MockLiteLlmGateway {
         agentStubs("dosage_policy_agent", 1,
             "{\"allowed\": false, \"missingRequiredContext\": true, \"reason\": \"Personalized repeat-dose decisions require clinician guidance.\"}",
             "take the rest", "half a tablet", "repeat dose");
+        agentStubAll("dosage_policy_agent", 1,
+            "{\"allowed\": false, \"missingRequiredContext\": true, \"reason\": \"Fever questions for a child require clinician-guided age, weight, duration, and symptom context.\"}",
+            "child", "fever");
         agentStubs("dosage_policy_agent", 1,
             "{\"allowed\": false, \"missingRequiredContext\": true, \"reason\": \"Pediatric dosing requires clinician-provided age, weight, and indication.\"}",
             "child", "kid", "pediatric", "by weight");
@@ -133,7 +140,10 @@ public class MockLiteLlmGateway {
     private void registerClinicalStubs() {
         agentStub("clinical_retriever", "malformed", 1,
             "{\"approvedText\": \"This response intentionally omits matchFound.\"}");
-        agentStubs("clinical_retriever", 1, PREGNANCY_CONTENT, "pregnant", "pregnancy");
+        agentStubAll("clinical_retriever", 1, PREGNANCY_FEVER_CONTENT, "pregnant", "fever");
+        agentStubAll("clinical_retriever", 1, ACETAMINOPHEN_LIVER_ALCOHOL_CONTENT, "acetaminophen", "alcohol");
+        agentStubAll("clinical_retriever", 1, ACETAMINOPHEN_LIVER_ALCOHOL_CONTENT, "acetaminophen", "liver");
+        agentStubs("clinical_retriever", 2, PREGNANCY_CONTENT, "pregnant", "pregnancy", "pregrant", "pregant", "pregnent", "pregnnt");
         agentStubs("clinical_retriever", 2, IBUPROFEN_CONTENT, "ibuprofen", "advil", "motrin", "ibuprofin");
         agentStubs("clinical_retriever", 2, ACETAMINOPHEN_CONTENT, "acetaminophen", "paracetamol", "paracetemol", "tylenol");
         agentStubs("clinical_retriever", 2, ASPIRIN_CONTENT, "aspirin", "asprin", "asa", "baby aspirin", "acetylsalicylic acid");
@@ -169,6 +179,18 @@ public class MockLiteLlmGateway {
         for (String promptFragment : promptFragments) {
             agentStub(agentName, promptFragment, priority, content);
         }
+    }
+
+    private void agentStubAll(String agentName, int priority, String content, String... promptFragments) {
+        var mapping = post(urlEqualTo("/v1/chat/completions"))
+            .atPriority(priority)
+            .withRequestBody(containing("agent=" + agentName));
+        for (String promptFragment : promptFragments) {
+            mapping.withRequestBody(containing(promptFragment));
+        }
+        stubFor(mapping.willReturn(aResponse()
+            .withHeader("Content-Type", "application/json")
+            .withBody(openAiResponse(content))));
     }
 
     private void agentDefault(String agentName, int priority, String content) {

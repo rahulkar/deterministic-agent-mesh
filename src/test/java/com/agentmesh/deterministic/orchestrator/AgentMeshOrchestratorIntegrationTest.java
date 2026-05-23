@@ -75,6 +75,25 @@ class AgentMeshOrchestratorIntegrationTest {
     }
 
     @Test
+    void pregnancyTypoReturnsPregnancyGuidance() {
+        AgentMeshResponse response = orchestrator.executeTriage("what if im pregrant");
+
+        assertEquals(ResponseStatus.SUCCESS, response.status());
+        assertEquals("ALLOW", response.guardDecision());
+        assertEquals(List.of("clinical_retriever"), response.selectedAgents());
+        assertTrue(response.content().contains("pregnancy-related"));
+    }
+
+    @Test
+    void pregnancyFeverPromptReturnsSpecificPregnancyFeverGuidance() {
+        AgentMeshResponse response = orchestrator.executeTriage("what if im pregnant regarding fever");
+
+        assertEquals(ResponseStatus.SUCCESS, response.status());
+        assertEquals("ALLOW", response.guardDecision());
+        assertTrue(response.content().contains("fever during pregnancy"));
+    }
+
+    @Test
     void brandNamePainQuestionReturnsApprovedClinicalContent() {
         AgentMeshResponse response = orchestrator.executeTriage("Is Advil okay for aches after a workout?");
 
@@ -155,7 +174,16 @@ class AgentMeshOrchestratorIntegrationTest {
 
         assertEquals(ResponseStatus.COMPLIANCE_BLOCKED, response.status());
         assertEquals("DISALLOW:DOSAGE_POLICY", response.guardDecision());
-        assertTrue(response.warning().contains("Pediatric dosing"));
+        assertTrue(response.warning().contains("Fever questions for a child") || response.warning().contains("Pediatric dosing"));
+    }
+
+    @Test
+    void acetaminophenAlcoholConcernReturnsCautionContent() {
+        AgentMeshResponse response = orchestrator.executeTriage("Can I take acetaminophen after alcohol?");
+
+        assertEquals(ResponseStatus.SUCCESS, response.status());
+        assertEquals("ALLOW", response.guardDecision());
+        assertTrue(response.content().contains("liver disease or alcohol use"));
     }
 
     @Test

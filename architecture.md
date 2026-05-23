@@ -159,6 +159,8 @@ Google ADK Dev UI is used as a browser shell, not as the planner. The adapter li
 - Agent name `deterministic-agent-mesh`
 - A custom `BaseAgent` implementation that calls `AgentMeshOrchestrator.executeTriage(...)`
 
+The adapter carries only bounded deterministic session context. It records safe slots such as the last symptom topic, last drug topic, and last successful selected agents through ADK `stateDelta`; it does not persist raw prompt text. Follow-up turns like "what if im pregrant" can therefore be rewritten into a bounded effective prompt such as "what if im pregnant regarding fever" when the previous turn established fever as the topic.
+
 When started directly, the adapter lazily starts WireMock and local A2A SDK-backed agents on random available ports. When started through `run.sh` or `run.bat`, `StackLauncher` starts the mock gateway on `8080`, all six fixed-port A2A agents on `9001` through `9006`, and ADK Dev UI on `SERVER_PORT` or `8000`. A local `RequestBodyAdvice` fills blank Dev UI `sessionId` values and creates the in-memory session before ADK validates `/run` or `/run_sse`.
 
 ## Hardening Hooks

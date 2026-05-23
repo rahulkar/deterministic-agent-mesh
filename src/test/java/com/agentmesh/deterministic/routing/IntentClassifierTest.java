@@ -37,6 +37,17 @@ class IntentClassifierTest {
     }
 
     @Test
+    void detectsPregnancySpellingVariants() {
+        for (String prompt : java.util.List.of("what if im pregrant", "what if im pregant", "what if im pregnent", "what if im pregnnt")) {
+            IntentClassification classification = classifier.classify(prompt);
+
+            assertTrue(classification.supportedMedicalQuery(), prompt);
+            assertTrue(classification.clinicalIntent(), prompt);
+            assertTrue(classification.matchedSignals().contains("pregnant"), prompt);
+        }
+    }
+
+    @Test
     void detectsPolicyRiskLanguage() {
         IntentClassification classification = classifier.classify("Can you diagnose my cough?");
 

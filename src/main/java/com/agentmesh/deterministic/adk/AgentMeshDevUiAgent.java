@@ -10,10 +10,12 @@ import com.agentmesh.deterministic.security.PromptAttackGuard;
 import com.google.adk.agents.BaseAgent;
 import com.google.adk.agents.InvocationContext;
 import com.google.adk.events.Event;
+import com.google.adk.events.EventActions;
 import com.google.genai.types.Content;
 import com.google.genai.types.Part;
 import io.reactivex.rxjava3.core.Flowable;
 import java.util.List;
+import java.util.Map;
 
 final class AgentMeshDevUiAgent extends BaseAgent {
     private static final String START_RUNTIME_ON_LOAD_PROPERTY = "agentmesh.adk.start-runtime-on-load";
@@ -39,14 +41,19 @@ final class AgentMeshDevUiAgent extends BaseAgent {
         String prompt = invocationContext.userContent()
             .map(Content::text)
             .orElse("");
-        AgentMeshResponse response = RUNTIME.orchestrator().executeTriage(prompt);
+        ConversationContext.ResolvedPrompt resolved = ConversationContext.resolve(prompt, invocationContext.session().state());
+        AgentMeshResponse response = RUNTIME.orchestrator().executeTriage(resolved.effectivePrompt());
+        Map<String, Object> stateDelta = ConversationContext.stateDelta(resolved.effectivePrompt(), response);
         return Flowable.just(Event.builder()
             .id(Event.generateEventId())
             .invocationId(invocationContext.invocationId())
             .author(name())
             .content(Content.builder()
                 .role("model")
-                .parts(Part.fromText(render(prompt, response)))
+                .parts(Part.fromText(render(prompt, resolved.contextUsed(), response)))
+                .build())
+            .actions(EventActions.builder()
+                .stateDelta(stateDelta)
                 .build())
             .turnComplete(true)
             .build());
@@ -57,12 +64,15 @@ final class AgentMeshDevUiAgent extends BaseAgent {
         return runAsyncImpl(invocationContext);
     }
 
-    private String render(String prompt, AgentMeshResponse response) {
+    private String render(String prompt, java.util.Optional<String> contextUsed, AgentMeshResponse response) {
+        String contextLine = contextUsed
+            .map(topic -> "Context used: " + topic + "\n")
+            .orElse("");
         return """
             Deterministic Agent Mesh result
 
             Query: %s
-            Status: %s
+            %sStatus: %s
             Content: %s
             Warning: %s
             Agents: %s
@@ -72,6 +82,7 @@ final class AgentMeshDevUiAgent extends BaseAgent {
             LLM skipped: %s
             """.formatted(
             prompt,
+            contextLine,
             response.status(),
             response.content(),
             response.warning(),
@@ -81,6 +92,10 @@ final class AgentMeshDevUiAgent extends BaseAgent {
             response.correlationId(),
             response.llmSkipped()
         );
+    }
+
+    static void shutdownRuntimeForTests() {
+        RUNTIME.stop();
     }
 
     private static final class MeshRuntime {
